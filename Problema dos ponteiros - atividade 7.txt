@@ -1,0 +1,180 @@
+Atividade 7 - Letra B
+
+Versão errada da função soma - 1ª versão
+#include <iostream>
+#define N 3
+using namespace std;
+
+typedef struct{
+    float x;
+    float y;
+    float z;
+} vetor;
+
+void entrada_vetor (vetor *componentes){
+    cin >> componentes->x >> componentes->y >> componentes->z;       
+}
+
+void soma_vetor (vetor *componentes, vetor *componentes_soma){
+    componentes_soma [N - 1].x += componentes->x;
+    componentes_soma [N - 1].y += componentes->y; 
+    componentes_soma [N - 1].z += componentes->z; 
+    cout << "teste" << endl;
+    cout << componentes_soma [N - 1].x << endl;
+    cout << componentes_soma [N - 1].y << endl;
+    cout << componentes_soma [N - 1].z << endl;
+    cout << componentes_soma [0].x << endl;
+    cout << componentes_soma [0].y << endl;
+    cout << componentes_soma [0].z << endl;
+    cout << componentes_soma [1].x << endl;
+    cout << componentes_soma [1].y << endl;
+    cout << componentes_soma [1].z << endl;
+    cout << componentes_soma [50].x << endl;    
+}
+
+void impressao_soma (vetor *componentes){
+    cout << componentes->x << " " << componentes->y << " " << componentes->z << " " << endl;
+}
+
+
+int main(){
+    int i = 0;
+    vetor quantidade [N];
+    
+    for (i = 0; i < N - 1; i++){
+        entrada_vetor (& quantidade [i]);
+    }
+    
+    for (i = 0; i < N - 1; i++){
+        soma_vetor (& quantidade [i], & quantidade [N - 1]);
+    }
+    
+    impressao_soma (& quantidade [N - 1]);
+
+    return 0;
+}
+
+O código pode ser encerrado com o erro 139, 134 ou 132, pois as tentativas de acesso a endereços de memória além do tamanho do vetor (ver comentários abaixo) geram esses erros. Lembre-se que não há restrição, seja em tempo de execução ou compilação, quanto ao acesso de posições fora do escopo do vetor.
+
+O ponteiro "componentes" aponta corretamente para as variáveis dos dois registros do tipo "vetor", logo as coordenadas dos dois vetores são fornecidas corretamente à função. Isso implica que o uso do argumento "& quantidade [i]" está correto.
+
+A razão do vetor "componentes_soma [0].x" (ou ".y" e ".z") ter valores aleatórios é que, quando um vetor de registros (ou um vetor normal) é declarado, cada posição recebe um valor aleatório, caso não seja definido valores para cada posição do vetor ou caso essa estrutura não seja inicializada com "zeros". É uma boa prática iniciar todos os elementos do registro com "0", a não ser em casos específicos, pois há casos que os valores assumidos por um elemento do registro o impede de realizar certas operações matemáticas.
+
+Inicializar todos os elementos do registro com "0" não alterará o resultado da impressão devido ao uso ao tipo de processamento feito na função soma, a qual é um deslocamento de ponteiro.
+
+Para analisar erros como esse, você pode entrar com os valore no terminal dessa forma "1 2 3" ao invés de colocar um número por linha. 
+
+
+Pergunta feita para o Gemini:
+
+O código abaixo possui alguns erros, mas peço que foque somente na minha pergunta. O que é o elemento "componentes_soma [N - 1].x" no processamento da função "void soma_vetor" e o que ele acessa na memória? Eu declarei um array de três registros do tipo vetor em "vetor quantidade [N]". Na chamada da função "void soma_vetor", eu passei o argumento "& quantidade [N - 1]", logo bastaria eu fazer o processamento com o operador seta como em "componentes_soma->x". Entretanto, eu fiz três processamentos usando o operador "." e colocando um par de colchetes. Verifiquei que se eu colocar "componentes_soma [N - 3].x" ou "componentes_soma [0].x", o resultado é o mesmo daquele observado com o operador seta, isto é, há uma soma normal dos valores apontados por "*componentes" aos valores de "*componentes_soma". Então o que estou fazendo e acessando ao utilizar o par de colchetes e o operador "." em "componentes_soma [N - 1]"? Como posso também acessar outras posições como em "componentes_soma [50].x"? 
+
+Resposta comentada:
+
+O erro está no campo da aritmética de ponteiros.
+
+A estrutura "componentes_soma [N-1]" é uma forma de aritmética de ponteiros, pois a sintaxe dos colchetes ("[]") com um ponteiro é traduzida pelo compilador para uma operação de deslocamento de memória.
+
+"componentes_soma" é um ponteiro do tipo "vetor". A estrutura "componentes_soma [N-1]" é interpretada pelo compilador como "*(componentes_soma + (N-1))", ou seja, a operação feita pelo compilador é pegar o endereço base contido em "componentes_soma" (nesse caso é o endereço do terceiro elemento do array "quantidade") e avançar o ponteiro "N-1" vezes o tamanho do tipo de dado que ele aponta (verifique o tamanho com a função "sizeof (vetor)").
+
+O asterisco em "*(componentes_soma + (N-1))" desferencia o endereço de memória resultante dessa soma, ou seja, acessa esse valor. É o operação de indireção.
+
+Já o operador ponto (".") em ".x" acessa o membro "x" da estrutura "vetor" que está nesse endereço de memória.
+
+A chamada "soma_vetor(&quantidade[N - 1])" está passando o endereço do último elemento do array "quantidade", logo o ponteiro "componentes_soma" aponta para "&quantidade[N - 1]".
+
+Ao usar "componentes_soma [N-1]", o compilador faz o seguinte cálculo "&quantidade[N - 1] + (N - 1) * sizeof(vetor)". O primeiro elemento é o endereço base, enquanto o segundo é o deslocamento. Como N = 3, o deslocamento é 2 * sizeof(vetor). Como o registro "vetor" possui quatro elementos do tipo float, ele possui o tamanho de 12 bytes, o deslocamento feito por "N - 1" é de 24 bytes.
+
+Esse deslocamento significa que há um acesso a uma posição de memória que está duas posições à frente do endereço inicial passado para a função. Isso é um comportamento indefinido (undefined behavior), pois você está acessando a memória fora dos limites do array que você declarou em função principal. Essa é uma das razões pela qual os erros 132, 134 e 139 são gerados.
+
+O motivo das estruturas "componentes_soma[0]" e "componentes_soma[N - 3]" resultarem no mesmo efeito que "componentes_soma->x" é que essas notações são equivalentes e acessam o primeiro (e único) elemento do array que o ponteiro "componentes_soma" aponta no contexto da função.
+
+A confusão de interpretação é iniciada ao passar o endereço de um único elemento do array (&quantidade[N - 1]) para a função, mas a função "achar" que o ponteiro "componentes_soma" aponta para o início de um array de vetores.
+
+Quando você tenta acessar "componentes_soma[N - 1]", o compilador simplesmente segue a aritmética de ponteiros e acessa o endereço deslocado.
+
+O aparente funcionamento desse acesso é devido à organização da memória. O array "quantidade" é alocado na memória como blocos contínuos. Quando você passa o argumento "&quantidade[N - 1]", o ponteiro "componentes_soma" aponta para o início do terceiro bloco.
+
+Ao acessar "componentes_soma[N - 1]", você está tentando ler ou escrever em um endereço de memória que fica fora do array "quantidade", duas posições após "quantidade[N - 1]". O resultado desse acesso é imprevisível, sendo justamente esse o motivo da variação de valores assumidos por "componentes_soma[N - 1]", ora funcionando normalmente e ora falhando. O fato de "componentes_soma[N - 1].y" ser fixo pode ser uma particularidade do Online GDB ou o código acabar reservando uma posição de memória fixa para esse elemento.
+
+O uso de "componentes_soma[0]", "componentes_soma[N - 3]" ou "componentes_soma->" resulta no acesso à posição inicial para a qual o ponteiro "componentes_soma" aponta, que é o endereço de "quantidade[N - 1]". O resultado final é a soma de todos os valores de "componentes" em "quantidade[N - 1]".
+
+O acesso de "componentes_soma[50].x" (ou de qualquer outra posição), para ser corretamente executado, exige que o ponteiro "componentes_soma" aponte para o início de um array que tenha pelo menos 51 elementos alocados (índices de 0 a 50).
+
+Como o array "quantidade" só tem 3 elementos, a tentativa de acesso à "componentes_soma[50].x" resultará no programa lendo ou escrevendo em um endereço de memória muito distante do seu array original. Isso provavelmente resultaria em um erro de segmentação (segmentation fault), que é quando o programa tenta acessar uma área de memória que não lhe pertence. Essa é a outra razão pela qual os erros 132, 134 e 139 são gerados.
+
+As recomendações do Gemini foram realizar a soma na função principal ou usar o operador seta no processamento, evitando a aritmética de ponteiros já que o operador "->" basta para acessar membros de uma registro por meio de um ponteiro.
+
+
+Segunda pergunta ao Gemini:
+Eu compreendi o erro, mas tentei outros processamentos por curiosidade. Se eu utilizar o processamento "componentes_soma [N - 1]->x" na função "void soma_vetor", o compilador indica erro. Se eu disser que o erro é devido ao operador seta ser impróprio para um ponteiro deslocado, isso está correto? Ou há algo que estou esquecendo?
+
+Minha resposta original (baseada em reflexões sobre os resultados anteriores):
+
+Como "componentes_soma [N - 1].x" é um acesso a um elemento de um registro após uma operação de aritmética de ponteiros, o uso do operador -> não faz sentido ("componentes_soma [N - 1]->x"), pois o ponteiro foi deslocado. 
+
+
+Resposta comentada:
+
+O erro de compilação ao usar "componentes_soma[N - 1]->x" ocorre por erro de sintaxe.
+
+O elemento "componentes_soma" é um ponteiro para o registro "vetor". A notação "componentes_soma[N - 1]" é uma aritmética de ponteiros, traduzida pelo compilador como "*(componentes_soma + (N - 1))". Como no final há a aplicação do operador "*", ocorre uma operação de "desreferência", ou seja, é feita uma referência à estrutura do tipo "vetor" que está naquele endereço de memória (o endereço deslocado duas unidades de tamanho do registro "vetor").
+
+O acesso de um membro de uma estrutura por meio de uma referência ou de um objeto é feita pelo operador ".". O operado "->", por sua vez, serve exclusivamente para acessar membros de uma estrutura por meio de um ponteiro do mesmo tipo que o registro.
+
+Em outra palavras, a expressão "componentes_soma[N - 1]->x" indica que estou tentando usar o operador seta a algo que já foi desreferenciado (*), e não a um ponteiro.
+*: Lembre-se que o uso o operador "*" em "*(componentes_soma + (N - 1))" já desreferenciou o conteúdo original, logo o endereço de memória usado pelo processamento dessa linha é o próprio registro "vetor" da posição "N-1".
+
+O compilador, portanto, espera o operador "." após a operação "componentes_soma[N - 1]" para acessar os membros desse registro. Por isso, a sintaxe correta é "componentes_soma[N - 1].x".
+
+Use, portanto, o operador ponto quando você tem o objeto/estrutura em si (ou uma referência a ele). E o operador seta quando você tem um ponteiro para o objeto/estrutura.
+
+
+Versão com funçao soma - 2ª versão
+#include <iostream>
+#define N 3
+using namespace std;
+
+typedef struct{
+    float x = 0;
+    float y = 0;
+    float z = 0;
+} vetor;
+
+void entrada_vetor (vetor *componentes){
+    cin >> componentes->x >> componentes->y >> componentes->z;       
+}
+
+void soma_vetor (vetor *componentes, vetor &componentes_soma){
+    componentes_soma.x += componentes->x;
+    componentes_soma.y += componentes->y; 
+    componentes_soma.z += componentes->z;     
+}
+
+void impressao_soma (vetor *componentes){
+    cout << componentes->x << " " << componentes->y << " " << componentes->z << " " << endl;
+}
+
+
+int main(){
+    int i = 0;
+    vetor quantidade [N];
+    
+    for (i = 0; i < N - 1; i++){
+        entrada_vetor (& quantidade [i]);
+    }
+    
+    for (i = 0; i < N - 1; i++){
+        soma_vetor (& quantidade [i], quantidade [N - 1]);
+    }
+    
+    impressao_soma (& quantidade [N - 1]);
+
+    return 0;
+}
+
+Comentários:
+Note que nesse caso há a passagem por valor do registro "quantidade [N - 1]", enquanto a alteração é feita por referência (via parâmetro "&componentes_soma").
+
+Como não há uso de ponteiro no parâmetro de "componentes_soma", o acesso aos membros do registro é feito pelo operador ponto.
+

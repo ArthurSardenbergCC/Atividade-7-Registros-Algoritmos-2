@@ -1,0 +1,88 @@
+Estudo feito para a Letra D - Exercício 7
+
+É possível criar um vetor com várias "strings" ou cadeias no C++.
+
+1) A primeira possibilidade é utilizar a estrutura "vector".
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int main(){
+    vector <string> nomes = {"a", "b", "c"};
+    int i = 0;
+    
+    for (i = 0; i < 3; i++){
+        cout << nomes [i] << endl;
+    }
+
+    return 0;
+}
+
+
+2) É possível adicionar os elementos no "vector" através da função "nome_do_vector.push_back(valor)".
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int main(){
+    vector <string> nomes;
+    int i = 0;
+    
+    nomes.push_back("a");
+    nomes.push_back("b");
+    nomes.push_back("c");
+    
+    for (i = 0; i < 3; i++){
+        cout << nomes [i] << endl;
+    }
+
+    return 0;
+}
+
+A função push_back() adiciona valores ao fim de sequências de contêineres como o "vector" e "list". Como ele adiciona um elemento ao final da sequência, o tamanho do contêiner é aumentado em uma unidade.
+
+Essa função também é capaz de realocar a memória dedicada ao "vector". Por exemplo, caso essa função seja usada para adicionar um elemento a um "vector" que já esteja cheio (caso de um array de 3 elementos já preenchidos), há um aumento automático da capacidade de armazamento de "vector" (geralmente é dobrada a capacidade), assim como ocorre a cópia dos elementos existentes para o novo local de memória. A realocação constante de memória, entretanto, pode piorar o desempenho do programa.
+
+
+3) A impressão de elementos de um "vector" pode ser feita com a estrutura abaixo:
+
+#include <iostream>
+#include <vector>
+using namespace std;
+
+int main(){
+    vector <string> nomes;
+    int i = 0;
+    
+    nomes.push_back("a");
+    nomes.push_back("b");
+    nomes.push_back("c");
+    
+    for (string nome : nomes){
+        cout << nome << endl;
+    }
+
+    return 0;
+}
+
+Note que a estrutura é: tipo de dado + nome da varíavel a ser impressa (criada somente para essa instrução) + ":" + nome do vector.
+
+
+4) A quarta opção é usar um array de strings, o qual terá tamanho fixo.
+
+#include <iostream>
+#define N 3
+using namespace std;
+
+int main(){
+    string nomes [N] = {"a", "b", "c"};
+    int i = 0;
+
+    for (i = 0; i < N; i++){
+        cout << nomes [i] << endl;
+    }
+
+    return 0;
+}
